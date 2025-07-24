@@ -9,21 +9,19 @@
 // @noframes
 // ==/UserScript==
 
-const seriesTitleClass = "series-main_title";
-const seriesContentClass = "series-main_content";
+const SERIES_TITLE_CLASS = "series-main_title";
+const SERIES_CONTENT_CLASS = "series-main_content";
+const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
+
+const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
+const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
+const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 
 let previousTitle;
 let previousUrl;
 
-class Utils {
-  static retrieveSelectorClassStartsWith(className) {
-    return `[class^=${className}]`;
-  }
-}
-Object.freeze(Utils);
-
 function waitForTitle() {
-  let titleSelector = Utils.retrieveSelectorClassStartsWith(seriesTitleClass);
+  let titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
   let fetchTitleElement = function () { return document.querySelector(titleSelector); };
 
   return new Promise((res) => {
