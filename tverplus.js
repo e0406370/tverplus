@@ -9,16 +9,11 @@
 // @noframes
 // ==/UserScript==
 
-class Constants {
-  static get seriesTitleClass() {
-    return "series-main_title";
-  }
+const seriesTitleClass = "series-main_title";
+const seriesContentClass = "series-main_content";
 
-  static get seriesContentClass() {
-    return "series-main_content";
-  }
-}
-Object.freeze(Constants);
+let previousTitle;
+let previousUrl;
 
 class Utils {
   static retrieveSelectorClassStartsWith(className) {
@@ -27,11 +22,8 @@ class Utils {
 }
 Object.freeze(Utils);
 
-
-let previousTitle;
-
 function waitForTitle() {
-  let titleSelector = Utils.retrieveSelectorClassStartsWith(Constants.seriesTitleClass);
+  let titleSelector = Utils.retrieveSelectorClassStartsWith(seriesTitleClass);
   let fetchTitleElement = function () { return document.querySelector(titleSelector); };
 
   return new Promise((res) => {
@@ -56,8 +48,6 @@ function waitForTitle() {
     });
   });
 }
-
-let previousUrl;
 
 function runScript() {
   waitForTitle().then((title) => {
