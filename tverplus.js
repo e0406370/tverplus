@@ -47,10 +47,39 @@ function waitForTitle() {
   });
 }
 
+function retrieveSeriesData(title) {
+  fetch(getMDLSearchDramasEndpoint(title))
+    .then((res) => res.json())
+    .then((data) => {
+      for (let i = 0; i < 3; i++) {
+        const drama = data.results.dramas[i];
+
+        if (drama.type === "Japanese Drama" || drama.type === "Japanese Special") {
+          console.info(`${drama.title} + ${drama.year}`);
+          return drama.slug;
+        }
+      }
+    })
+    .then((slug) => {
+      return fetch(getMDLGetDramaInfoEndpoint(slug));
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      const rating = data.data.rating;
+      const link = data.data.link;
+
+      console.info(`${rating} + ${link}`);
+      return { rating, link };
+    })
+}
+
 function runScript() {
+  let rating;
+  let link;
+
   waitForTitle().then((title) => {
     console.info(title);
-    return title;
+    retrieveSeriesData(title);
   });
 }
 
