@@ -87,6 +87,25 @@ function retrieveSeriesData(title) {
     })
 }
 
+function includeSeriesData(data) {
+  let contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
+
+  let ratingLabel = document.createElement("div");
+  ratingLabel.textContent = data.rating;
+
+  let linkLabel = document.createElement("a");
+  linkLabel.setAttribute("href", data.link);
+  linkLabel.setAttribute("target", "_blank");
+  linkLabel.setAttribute("rel", "noopener noreferrer");
+  linkLabel.textContent = "Link to MDL";
+
+  let dataContainer = document.createElement('div');
+  dataContainer.appendChild(ratingLabel);
+  dataContainer.appendChild(linkLabel);
+  contentContainer.appendChild(dataContainer);
+}
+
+
 function runScript() {
   waitForTitle()
     .then((title) => {
@@ -95,6 +114,7 @@ function runScript() {
     })
     .then((data) => {
       console.info(`${data.rating} | ${data.link}`);
+      includeSeriesData(data);
     });
 }
 
