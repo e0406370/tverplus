@@ -22,18 +22,18 @@ let previousTitle;
 let previousUrl;
 
 function waitForTitle() {
-  let titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
-  let fetchTitleElement = function () { return document.querySelector(titleSelector); };
+  const titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
+  const fetchTitleElement = () => { return document.querySelector(titleSelector); };
 
   return new Promise((res) => {
-    let titleElement = fetchTitleElement();
+    const titleElement = fetchTitleElement();
     if (titleElement && titleElement.textContent !== previousTitle) {
       previousTitle = titleElement.textContent;
       return res(previousTitle);
     }
 
     const observer = new MutationObserver(() => {
-      let titleElement = fetchTitleElement();
+      const titleElement = fetchTitleElement();
       if (titleElement && titleElement.textContent !== previousTitle) {
         previousTitle = titleElement.textContent;
         observer.disconnect();
@@ -88,19 +88,19 @@ function retrieveSeriesData(title) {
 }
 
 function includeSeriesData(data) {
-  let mode = document.querySelector("html").getAttribute("class");
-  let color = mode === "light" ? "#000000" : "#ffffff";
+  const mode = document.querySelector("html").getAttribute("class");
+  const color = mode === "light" ? "#000000" : "#ffffff";
 
-  let contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
-  let dataContainer = document.createElement('div');
+  const contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
+  const dataContainer = document.createElement("div");
 
-  let ratingLabel = document.createElement("div");
+  const ratingLabel = document.createElement("div");
   ratingLabel.textContent = data.rating;
   ratingLabel.style.color = color;
   dataContainer.appendChild(ratingLabel);
 
   if (data.link) {
-    let linkLabel = document.createElement("a");
+    const linkLabel = document.createElement("a");
     linkLabel.setAttribute("href", data.link);
     linkLabel.setAttribute("target", "_blank");
     linkLabel.setAttribute("rel", "noopener noreferrer");
