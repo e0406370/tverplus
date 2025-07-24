@@ -4,13 +4,14 @@
 // @description  Adds MyDramaList rating and link to the corresponding MyDramaList page directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-07-23
+// @version      2025-07-24
 // @grant        window.onurlchange
 // @noframes
 // ==/UserScript==
 
 const SERIES_TITLE_CLASS = "series-main_title";
 const SERIES_CONTENT_CLASS = "series-main_content";
+const TVER_SERIES_URL = "https://tver.jp/series/";
 const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
@@ -48,43 +49,57 @@ function waitForTitle() {
 }
 
 function retrieveSeriesData(title) {
-  fetch(getMDLSearchDramasEndpoint(title))
+  let rating;
+  let link;
+
+  return fetch(getMDLSearchDramasEndpoint(title))
     .then((res) => res.json())
     .then((data) => {
+      if (data.results.dramas.length === 0) {
+        throw new Error(`No results for ${title}`);
+      }
+
       for (let i = 0; i < 3; i++) {
         const drama = data.results.dramas[i];
 
-        if (drama.type === "Japanese Drama" || drama.type === "Japanese Special") {
-          console.info(`${drama.title} + ${drama.year}`);
+        if (drama.type === "Japanese Drama") {
+          console.info(`${drama.title} | ${drama.year}`);
           return drama.slug;
         }
       }
+
+      throw new Error(`No 1-1 match found for ${title}`);
     })
     .then((slug) => {
       return fetch(getMDLGetDramaInfoEndpoint(slug));
     })
     .then((res) => res.json())
     .then((data) => {
-      const rating = data.data.rating;
-      const link = data.data.link;
-
-      console.info(`${rating} + ${link}`);
+      rating = data.data.rating;
+      link = data.data.link;
+      return { rating, link };
+    })
+    .catch((err) => {
+      console.error(err);
+      rating = "N/A";
+      link = null;
       return { rating, link };
     })
 }
 
 function runScript() {
-  let rating;
-  let link;
-
-  waitForTitle().then((title) => {
-    console.info(title);
-    retrieveSeriesData(title);
-  });
+  waitForTitle()
+    .then((title) => {
+      console.info(title);
+      return retrieveSeriesData(title);
+    })
+    .then((data) => {
+      console.info(`${data.rating} | ${data.link}`);
+    });
 }
 
 function matchScript({ url }) {
-  if (url.startsWith("https://tver.jp/series/")) {
+  if (url.startsWith(TVER_SERIES_URL)) {
     if (previousUrl && previousUrl === location.href) {
       return;
     }
