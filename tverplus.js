@@ -3,9 +3,10 @@
 // @namespace    tver
 // @description  Adds MyDramaList rating and link to the corresponding MyDramaList page directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
-// @match        https://tver.jp/*
+// @include      https://tver.jp/*
 // @version      2025-07-23
 // @grant        window.onurlchange
+// @noframes
 // ==/UserScript==
 
 class Constants {
@@ -52,18 +53,25 @@ function waitForTitle() {
   });
 }
 
-function runScript() {
-  let title;
+let previousUrl;
 
-  waitForTitle().then((res) => {
-    console.info(res);
-    title = res;
+function runScript() {
+  waitForTitle().then((title) => {
+    console.info(title);
+    return title;
   });
 }
 
-function matchScript({ url }) {
+function matchScript({ url }) { 
   if (url.startsWith("https://tver.jp/series/")) {
+    if (previousUrl && previousUrl == location.href) {
+      return;
+    }
+    previousUrl = location.href;
     runScript();
+  }
+  else {
+    previousUrl = undefined;
   }
 }
 
