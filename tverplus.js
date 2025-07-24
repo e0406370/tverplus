@@ -3,9 +3,9 @@
 // @namespace    tver
 // @description  Adds MyDramaList rating and link to the corresponding MyDramaList page directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
-// @include      https://tver.jp/series/*
+// @match        https://tver.jp/*
 // @version      2025-07-23
-// @grant        none
+// @grant        window.onurlchange
 // ==/UserScript==
 
 class Constants {
@@ -52,7 +52,7 @@ function waitForTitle() {
   });
 }
 
-function init() {
+function runScript() {
   let title;
 
   waitForTitle().then((res) => {
@@ -61,4 +61,14 @@ function init() {
   });
 }
 
-init();
+function matchScript({ url }) {
+  if (url.startsWith("https://tver.jp/series/")) {
+    runScript();
+  }
+}
+
+// executes script upon reloading, opening in new tab / window, navigating via search bar
+matchScript({ url: location.href });
+
+// executes script upon url change as a result of interacting with pages (SPA)
+window.addEventListener("urlchange", matchScript);
