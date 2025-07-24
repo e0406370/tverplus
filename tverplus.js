@@ -88,16 +88,22 @@ function retrieveSeriesData(title) {
 }
 
 function includeSeriesData(data) {
+  let mode = document.querySelector("html").getAttribute("class");
+  let color = mode === "light" ? "#000000" : "#ffffff";
+
   let contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
 
   let ratingLabel = document.createElement("div");
   ratingLabel.textContent = data.rating;
+  ratingLabel.style.color = color;
 
   let linkLabel = document.createElement("a");
   linkLabel.setAttribute("href", data.link);
   linkLabel.setAttribute("target", "_blank");
   linkLabel.setAttribute("rel", "noopener noreferrer");
   linkLabel.textContent = "Link to MDL";
+  linkLabel.style.color = color;
+  linkLabel.style.textDecoration = "underline";
 
   let dataContainer = document.createElement('div');
   dataContainer.appendChild(ratingLabel);
