@@ -13,6 +13,7 @@ const SERIES_TITLE_CLASS = "series-main_title";
 const SERIES_CONTENT_CLASS = "series-main_content";
 const TVER_SERIES_URL = "https://tver.jp/series/";
 const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
+const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/mdl_favicon.png";
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
@@ -93,24 +94,29 @@ function includeSeriesData(data) {
 
   const contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
   const dataContainer = document.createElement("div");
-
-  const ratingLabel = document.createElement("div");
-  ratingLabel.textContent = data.rating;
-  ratingLabel.style.color = color;
-  dataContainer.appendChild(ratingLabel);
-
-  if (data.link) {
-    const linkLabel = document.createElement("a");
-    linkLabel.setAttribute("href", data.link);
-    linkLabel.setAttribute("target", "_blank");
-    linkLabel.setAttribute("rel", "noopener noreferrer");
-    linkLabel.textContent = "MDL";
-    linkLabel.style.color = color;
-    linkLabel.style.textDecoration = "underline";
-    dataContainer.appendChild(linkLabel);
-  }
-
   contentContainer.appendChild(dataContainer);
+
+  const linkWrapper = document.createElement(data.link ? "a" : "div");
+  if (data.link) {
+    linkWrapper.setAttribute("href", data.link);
+    linkWrapper.setAttribute("target", "_blank");
+    linkWrapper.setAttribute("rel", "noopener noreferrer");
+  }
+  linkWrapper.style.color = color;
+  linkWrapper.style.display = "inline-flex";
+  linkWrapper.style.alignItems = "center";
+  linkWrapper.style.gap = "4px";
+  dataContainer.appendChild(linkWrapper);
+
+  const faviconLabel = document.createElement("img");
+  faviconLabel.setAttribute("src", MDL_FAVICON_URL);
+  faviconLabel.setAttribute("width", "24");
+  faviconLabel.setAttribute("height", "24");
+  linkWrapper.appendChild(faviconLabel);
+
+  const ratingLabel = document.createElement("span");
+  ratingLabel.textContent = data.rating === "N/A" ? "N/A" : Number.parseFloat(data.rating).toFixed(1);
+  linkWrapper.appendChild(ratingLabel);
 }
 
 function runScript() {
