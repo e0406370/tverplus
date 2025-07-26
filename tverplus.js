@@ -4,7 +4,7 @@
 // @description  Adds MyDramaList rating and link to the corresponding MyDramaList page directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-07-24
+// @version      2025-07-26
 // @grant        window.onurlchange
 // @noframes
 // ==/UserScript==
@@ -50,8 +50,10 @@ function waitForTitle() {
 }
 
 function retrieveSeriesData(title) {
-  let rating;
-  let link;
+  let seriesData = {
+    rating: "N/A",
+    link: null,
+  };
 
   return fetch(getMDLSearchDramasEndpoint(title))
     .then((res) => res.json())
@@ -76,15 +78,14 @@ function retrieveSeriesData(title) {
     })
     .then((res) => res.json())
     .then((data) => {
-      rating = data.data.rating;
-      link = data.data.link;
-      return { rating, link };
+      seriesData.rating = data.data.rating;
+      seriesData.link = data.data.link;
+      localStorage.setItem(title, JSON.stringify(seriesData));
+      return seriesData;
     })
     .catch((err) => {
       console.error(err);
-      rating = "N/A";
-      link = null;
-      return { rating, link };
+      return seriesData;
     })
 }
 
@@ -123,7 +124,8 @@ function runScript() {
   waitForTitle()
     .then((title) => {
       console.info(title);
-      return retrieveSeriesData(title);
+      retrieved = localStorage.getItem(title);
+      return retrieved ? JSON.parse(retrieved) : retrieveSeriesData(title);
     })
     .then((data) => {
       console.info(`${data.rating} | ${data.link}`);
