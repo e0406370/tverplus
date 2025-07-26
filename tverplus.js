@@ -22,6 +22,7 @@ const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
 const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
+const normaliseMDLSearchQuery = (query) => query.replace("-", "").replace("Ｎ", "N");
 
 let previousTitle;
 let previousUrl;
@@ -60,7 +61,7 @@ function retrieveSeriesData(title) {
     timestamp: Date.now(),
   };
 
-  return fetch(getMDLSearchDramasEndpoint(title))
+  return fetch(getMDLSearchDramasEndpoint(normaliseMDLSearchQuery(title)))
     .then((res) => res.json())
     .then((data) => {
       if (data.results.dramas.length === 0) {
