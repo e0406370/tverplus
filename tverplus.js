@@ -4,7 +4,9 @@
 // @description  Adds MyDramaList rating and link to the corresponding MyDramaList page directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-07-24
+// @version      2025-07-26
+// @grant        GM.getValue
+// @grant        GM.setValue
 // @grant        window.onurlchange
 // @noframes
 // ==/UserScript==
@@ -16,6 +18,8 @@ const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/mdl_favicon.png";
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
+const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
+const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 
@@ -50,8 +54,11 @@ function waitForTitle() {
 }
 
 function retrieveSeriesData(title) {
-  let rating;
-  let link;
+  let seriesData = {
+    rating: "N/A",
+    link: null,
+    timestamp: Date.now(),
+  };
 
   return fetch(getMDLSearchDramasEndpoint(title))
     .then((res) => res.json())
@@ -75,17 +82,16 @@ function retrieveSeriesData(title) {
       return fetch(getMDLGetDramaInfoEndpoint(slug));
     })
     .then((res) => res.json())
-    .then((data) => {
-      rating = data.data.rating;
-      link = data.data.link;
-      return { rating, link };
+    .then(async (data) => {
+      seriesData.rating = data.data.rating;
+      seriesData.link = data.data.link;
+      await GM.setValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`, JSON.stringify(seriesData));
+      return seriesData;
     })
     .catch((err) => {
       console.error(err);
-      rating = "N/A";
-      link = null;
-      return { rating, link };
-    })
+      return seriesData;
+    });
 }
 
 function includeSeriesData(data) {
@@ -121,9 +127,10 @@ function includeSeriesData(data) {
 
 function runScript() {
   waitForTitle()
-    .then((title) => {
-      console.info(title);
-      return retrieveSeriesData(title);
+    .then(async (title) => {
+      const cached = await GM.getValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`);
+      const parsed = cached && JSON.parse(cached);
+      return cached && !isTimestampExpired(parsed.timestamp) ? parsed : retrieveSeriesData(title);
     })
     .then((data) => {
       console.info(`${data.rating} | ${data.link}`);
