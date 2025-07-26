@@ -18,6 +18,7 @@ const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/mdl_favicon.png";
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
+const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 
@@ -82,7 +83,7 @@ function retrieveSeriesData(title) {
     .then(async (data) => {
       seriesData.rating = data.data.rating;
       seriesData.link = data.data.link;
-      await GM.setValue(title, JSON.stringify(seriesData));
+      await GM.setValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`, JSON.stringify(seriesData));
       return seriesData;
     })
     .catch((err) => {
@@ -125,8 +126,7 @@ function includeSeriesData(data) {
 function runScript() {
   waitForTitle()
     .then(async (title) => {
-      console.info(title);
-      retrieved = await GM.getValue(title);
+      retrieved = await GM.getValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`);
       return retrieved ? JSON.parse(retrieved) : retrieveSeriesData(title);
     })
     .then((data) => {
