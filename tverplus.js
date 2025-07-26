@@ -5,6 +5,8 @@
 // @author       e0406370
 // @match        https://tver.jp/*
 // @version      2025-07-26
+// @grant        GM.getValue
+// @grant        GM.setValue
 // @grant        window.onurlchange
 // @noframes
 // ==/UserScript==
@@ -77,10 +79,10 @@ function retrieveSeriesData(title) {
       return fetch(getMDLGetDramaInfoEndpoint(slug));
     })
     .then((res) => res.json())
-    .then((data) => {
+    .then(async (data) => {
       seriesData.rating = data.data.rating;
       seriesData.link = data.data.link;
-      localStorage.setItem(title, JSON.stringify(seriesData));
+      await GM.setValue(title, JSON.stringify(seriesData));
       return seriesData;
     })
     .catch((err) => {
@@ -122,9 +124,9 @@ function includeSeriesData(data) {
 
 function runScript() {
   waitForTitle()
-    .then((title) => {
+    .then(async (title) => {
       console.info(title);
-      retrieved = localStorage.getItem(title);
+      retrieved = await GM.getValue(title);
       return retrieved ? JSON.parse(retrieved) : retrieveSeriesData(title);
     })
     .then((data) => {
