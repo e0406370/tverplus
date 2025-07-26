@@ -19,6 +19,7 @@ const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/ref
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
 const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
+const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 
@@ -56,6 +57,7 @@ function retrieveSeriesData(title) {
   let seriesData = {
     rating: "N/A",
     link: null,
+    timestamp: Date.now(),
   };
 
   return fetch(getMDLSearchDramasEndpoint(title))
@@ -89,7 +91,7 @@ function retrieveSeriesData(title) {
     .catch((err) => {
       console.error(err);
       return seriesData;
-    })
+    });
 }
 
 function includeSeriesData(data) {
@@ -126,8 +128,9 @@ function includeSeriesData(data) {
 function runScript() {
   waitForTitle()
     .then(async (title) => {
-      retrieved = await GM.getValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`);
-      return retrieved ? JSON.parse(retrieved) : retrieveSeriesData(title);
+      const cached = await GM.getValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`);
+      const parsed = cached && JSON.parse(cached);
+      return cached && !isTimestampExpired(parsed.timestamp) ? parsed : retrieveSeriesData(title);
     })
     .then((data) => {
       console.info(`${data.rating} | ${data.link}`);
