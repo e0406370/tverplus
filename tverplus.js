@@ -23,8 +23,8 @@ const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 *
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 
+let seriesID;
 let previousTitle;
-let previousUrl;
 
 function waitForTitle() {
   const titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
@@ -85,7 +85,7 @@ function retrieveSeriesData(title) {
     .then(async (data) => {
       seriesData.rating = data.data.rating;
       seriesData.link = data.data.link;
-      await GM.setValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`, JSON.stringify(seriesData));
+      await GM.setValue(`${seriesID}-${title}`, JSON.stringify(seriesData));
       return seriesData;
     })
     .catch((err) => {
@@ -128,7 +128,7 @@ function includeSeriesData(data) {
 function runScript() {
   waitForTitle()
     .then(async (title) => {
-      const cached = await GM.getValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`);
+      const cached = await GM.getValue(`${seriesID}-${title}`);
       const parsed = cached && JSON.parse(cached);
       return cached && !isTimestampExpired(parsed.timestamp) ? parsed : retrieveSeriesData(title);
     })
@@ -140,14 +140,11 @@ function runScript() {
 
 function matchScript({ url }) {
   if (url.startsWith(TVER_SERIES_URL)) {
-    if (previousUrl && previousUrl === location.href) {
-      return;
-    }
-    previousUrl = location.href;
+    seriesID = retrieveSeriesIDFromSeriesURL(location.href);
     runScript();
   }
   else {
-    previousUrl = undefined;
+    previousTitle = undefined;
   }
 }
 
