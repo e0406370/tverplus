@@ -8,6 +8,8 @@ Using the script allows users to instantly view the rating and directly access t
 
 There are plans to incorporate [Filmarks](https://filmarks.com/dramas/10640/14824) as an additional data source, but the required API endpoints will have to be created from scratch first.
 
+![demo](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/gh_7_demo.gif)
+
 ### Setup
 
 1. Install the Tampermonkey extension for your browser [here](https://www.tampermonkey.net/).
@@ -21,3 +23,5 @@ There are plans to incorporate [Filmarks](https://filmarks.com/dramas/10640/1482
 5. The `tverplus` script should now appear in the dashboard. To learn more about installing scripts to Tampermonkey, refer to this [guide](https://www.tampermonkey.net/faq.php?locale=en#Q102).
 
 6. Access a [valid](https://tver.jp/series/srwttibvhk) TVer series page `[https://tver.jp/series/*]`, and the script should execute.
+
+https://github.com/user-attachments/assets/d9673911-36bb-4d56-9c0a-88a6f9e01d50
