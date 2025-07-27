@@ -13,9 +13,11 @@
 
 const SERIES_TITLE_CLASS = "series-main_title";
 const SERIES_CONTENT_CLASS = "series-main_content";
+const SPINNER_LIGHT_MODE = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/spinner_light_mode.svg";
+const SPINNER_DARK_MODE = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/spinner_dark_mode.svg";
 const TVER_SERIES_URL = "https://tver.jp/series/";
 const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
-const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/mdl_favicon.png";
+const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/favicon_mdl.png";
 const MDL_DRAMA_TYPES = ["Japanese Drama", "Japanese TV Show"];
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
@@ -88,7 +90,7 @@ function retrieveSeriesData(title) {
     .then(async (data) => {
       seriesData.rating = data.data.rating;
       seriesData.link = data.data.link;
-      await GM.setValue(`${seriesID}-${title}`, JSON.stringify(seriesData));
+      await GM.setValue(`${seriesID}`, JSON.stringify(seriesData));
       return seriesData;
     })
     .catch((err) => {
@@ -103,6 +105,8 @@ function initSeriesElements() {
     const linkWrapper = document.createElement("a");
     const faviconLabel = document.createElement("img");
     const ratingLabel = document.createElement("span");
+    const colorMode = document.querySelector("html").getAttribute("class");
+    const loadingSpinner = document.createElement("img");
 
     dataContainer.appendChild(linkWrapper);
     linkWrapper.appendChild(faviconLabel);
@@ -113,8 +117,13 @@ function initSeriesElements() {
       linkWrapper: linkWrapper,
       faviconLabel: faviconLabel,
       ratingLabel: ratingLabel,
+      colorMode: colorMode,
+      loadingSpinner: loadingSpinner,
     };
 
+    seriesElements.loadingSpinner.setAttribute("src", seriesElements.colorMode === "light" ? SPINNER_LIGHT_MODE : SPINNER_DARK_MODE);
+
+    seriesElements.linkWrapper.style.color = seriesElements.colorMode === "light" ? "#000000" : "#ffffff";
     seriesElements.linkWrapper.style.display = "inline-flex";
     seriesElements.linkWrapper.style.alignItems = "center";
     seriesElements.linkWrapper.style.gap = "4px";
@@ -124,25 +133,26 @@ function initSeriesElements() {
     seriesElements.faviconLabel.setAttribute("height", "24");
   }
 
+  seriesElements.ratingLabel.textContent = "";
+  seriesElements.ratingLabel.appendChild(seriesElements.loadingSpinner);
+
   seriesElements.linkWrapper.removeAttribute("href");
   seriesElements.linkWrapper.removeAttribute("target");
   seriesElements.linkWrapper.removeAttribute("rel");
-  seriesElements.ratingLabel.textContent = "-";
 
   const contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
   contentContainer.appendChild(seriesElements.dataContainer);
 }
 
 function includeSeriesData(data) {
-  const mode = document.querySelector("html").getAttribute("class");
-  const color = mode === "light" ? "#000000" : "#ffffff";
+  seriesElements.ratingLabel.removeChild(seriesElements.loadingSpinner);
 
   if (data.link) {
     seriesElements.linkWrapper.setAttribute("href", data.link);
     seriesElements.linkWrapper.setAttribute("target", "_blank");
     seriesElements.linkWrapper.setAttribute("rel", "noopener noreferrer");
   }
-  seriesElements.linkWrapper.style.color = color;
+
   seriesElements.ratingLabel.textContent = data.rating === "N/A" ? "N/A" : Number.parseFloat(data.rating).toFixed(1);
 }
 
@@ -150,7 +160,7 @@ function runScript() {
   waitForTitle()
     .then(async (title) => {
       initSeriesElements();
-      const cached = await GM.getValue(`${seriesID}-${title}`);
+      const cached = await GM.getValue(`${seriesID}`);
       const parsed = cached && JSON.parse(cached);
       return cached && !isTimestampExpired(parsed.timestamp) ? parsed : retrieveSeriesData(title);
     })
@@ -171,8 +181,6 @@ function matchScript({ url }) {
   }
 }
 
-// executes script upon reloading, opening in new tab / window, navigating via search bar
 matchScript({ url: location.href });
 
-// executes script upon url change as a result of interacting with pages (SPA)
 window.addEventListener("urlchange", matchScript);
