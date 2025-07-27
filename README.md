@@ -6,4 +6,16 @@ It aims for the best possible 1-to-1 matching accuracy despite the limitations d
 
 Using the script allows users to instantly view the rating and directly access the associated MyDramaList page, eliminating the need to navigate away from TVer and searching for it manually via another method.
 
-There are plans to incorporate [Filmarks](https://filmarks.com/dramas/10640/14824) as an additional data source, but the mandatory API endpoints will have to be created from scratch.
+There are plans to incorporate [Filmarks](https://filmarks.com/dramas/10640/14824) as an additional data source, but the required API endpoints will have to be created from scratch first.
+
+### Setup
+
+1. Install the Tampermonkey extension for your browser [here](https://www.tampermonkey.net/).
+
+2. After installing, click on the Tampermonkey logo in the Extensions tab followed by the `Create a new script...` button.
+
+3. Copy and paste this [userscript](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/main/tverplus.js) into the editor and then press `CTRL + S` to save the script into the dashboard.
+
+4. The `tverplus` script should now appear in the dashboard. To learn more about installing scripts to Tampermonkey, refer to this [guide](https://www.tampermonkey.net/faq.php?locale=en#Q102).
+
+5. Access a [valid](https://tver.jp/series/srwttibvhk) TVer series page `[https://tver.jp/series/*]`, and the script should execute.
