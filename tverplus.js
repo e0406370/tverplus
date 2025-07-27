@@ -4,7 +4,7 @@
 // @description  Adds MyDramaList rating and link to the corresponding MyDramaList page directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-07-26
+// @version      2025-07-27
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @grant        window.onurlchange
@@ -25,8 +25,9 @@ const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${qu
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 const normaliseMDLSearchQuery = (query) => query.replace("-", "").replace("Ｎ", "N");
 
+let seriesID;
+let seriesElements;
 let previousTitle;
-let previousUrl;
 
 function waitForTitle() {
   const titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
@@ -87,7 +88,7 @@ function retrieveSeriesData(title) {
     .then(async (data) => {
       seriesData.rating = data.data.rating;
       seriesData.link = data.data.link;
-      await GM.setValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`, JSON.stringify(seriesData));
+      await GM.setValue(`${seriesID}-${title}`, JSON.stringify(seriesData));
       return seriesData;
     })
     .catch((err) => {
@@ -96,41 +97,60 @@ function retrieveSeriesData(title) {
     });
 }
 
+function initSeriesElements() {
+  if (!seriesElements) {
+    const dataContainer = document.createElement("div");
+    const linkWrapper = document.createElement("a");
+    const faviconLabel = document.createElement("img");
+    const ratingLabel = document.createElement("span");
+
+    dataContainer.appendChild(linkWrapper);
+    linkWrapper.appendChild(faviconLabel);
+    linkWrapper.appendChild(ratingLabel);
+
+    seriesElements = {
+      dataContainer: dataContainer,
+      linkWrapper: linkWrapper,
+      faviconLabel: faviconLabel,
+      ratingLabel: ratingLabel,
+    };
+
+    seriesElements.linkWrapper.style.display = "inline-flex";
+    seriesElements.linkWrapper.style.alignItems = "center";
+    seriesElements.linkWrapper.style.gap = "4px";
+
+    seriesElements.faviconLabel.setAttribute("src", MDL_FAVICON_URL);
+    seriesElements.faviconLabel.setAttribute("width", "24");
+    seriesElements.faviconLabel.setAttribute("height", "24");
+  }
+
+  seriesElements.linkWrapper.removeAttribute("href");
+  seriesElements.linkWrapper.removeAttribute("target");
+  seriesElements.linkWrapper.removeAttribute("rel");
+  seriesElements.ratingLabel.textContent = "-";
+
+  const contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
+  contentContainer.appendChild(seriesElements.dataContainer);
+}
+
 function includeSeriesData(data) {
   const mode = document.querySelector("html").getAttribute("class");
   const color = mode === "light" ? "#000000" : "#ffffff";
 
-  const contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
-  const dataContainer = document.createElement("div");
-  contentContainer.appendChild(dataContainer);
-
-  const linkWrapper = document.createElement(data.link ? "a" : "div");
   if (data.link) {
-    linkWrapper.setAttribute("href", data.link);
-    linkWrapper.setAttribute("target", "_blank");
-    linkWrapper.setAttribute("rel", "noopener noreferrer");
+    seriesElements.linkWrapper.setAttribute("href", data.link);
+    seriesElements.linkWrapper.setAttribute("target", "_blank");
+    seriesElements.linkWrapper.setAttribute("rel", "noopener noreferrer");
   }
-  linkWrapper.style.color = color;
-  linkWrapper.style.display = "inline-flex";
-  linkWrapper.style.alignItems = "center";
-  linkWrapper.style.gap = "4px";
-  dataContainer.appendChild(linkWrapper);
-
-  const faviconLabel = document.createElement("img");
-  faviconLabel.setAttribute("src", MDL_FAVICON_URL);
-  faviconLabel.setAttribute("width", "24");
-  faviconLabel.setAttribute("height", "24");
-  linkWrapper.appendChild(faviconLabel);
-
-  const ratingLabel = document.createElement("span");
-  ratingLabel.textContent = data.rating === "N/A" ? "N/A" : Number.parseFloat(data.rating).toFixed(1);
-  linkWrapper.appendChild(ratingLabel);
+  seriesElements.linkWrapper.style.color = color;
+  seriesElements.ratingLabel.textContent = data.rating === "N/A" ? "N/A" : Number.parseFloat(data.rating).toFixed(1);
 }
 
 function runScript() {
   waitForTitle()
     .then(async (title) => {
-      const cached = await GM.getValue(`${retrieveSeriesIDFromSeriesURL(previousUrl)}-${title}`);
+      initSeriesElements();
+      const cached = await GM.getValue(`${seriesID}-${title}`);
       const parsed = cached && JSON.parse(cached);
       return cached && !isTimestampExpired(parsed.timestamp) ? parsed : retrieveSeriesData(title);
     })
@@ -142,14 +162,12 @@ function runScript() {
 
 function matchScript({ url }) {
   if (url.startsWith(TVER_SERIES_URL)) {
-    if (previousUrl && previousUrl === location.href) {
-      return;
-    }
-    previousUrl = location.href;
+    seriesID = retrieveSeriesIDFromSeriesURL(location.href);
     runScript();
   }
   else {
-    previousUrl = undefined;
+    seriesElements = undefined;
+    previousTitle = undefined;
   }
 }
 
