@@ -12,10 +12,12 @@ There are plans to incorporate [Filmarks](https://filmarks.com/dramas/10640/1482
 
 1. Install the Tampermonkey extension for your browser [here](https://www.tampermonkey.net/).
 
-2. After installing, click on the Tampermonkey logo in the Extensions tab followed by the `Create a new script...` button.
+2. After installing, visit the Extensions [page](chrome://extensions/) and then click `Details` for the Tampermonkey extension, followed by enabling the `Allow user scripts` option as well as `Developer mode` located on the top right corner.
+  
+3. Open the Extensions tab located on the right of the address bar and then click on the Tampermonkey logo in the Extensions tab, followed by clicking the `Create a new script...` button.
 
-3. Copy and paste this [userscript](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/main/tverplus.js) into the editor and then press `CTRL + S` to save the script into the dashboard.
+4. Copy and paste this [userscript](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/main/tverplus.js) into the editor and then press `CTRL + S` to save the script into the dashboard.
 
-4. The `tverplus` script should now appear in the dashboard. To learn more about installing scripts to Tampermonkey, refer to this [guide](https://www.tampermonkey.net/faq.php?locale=en#Q102).
+5. The `tverplus` script should now appear in the dashboard. To learn more about installing scripts to Tampermonkey, refer to this [guide](https://www.tampermonkey.net/faq.php?locale=en#Q102).
 
-5. Access a [valid](https://tver.jp/series/srwttibvhk) TVer series page `[https://tver.jp/series/*]`, and the script should execute.
+6. Access a [valid](https://tver.jp/series/srwttibvhk) TVer series page `[https://tver.jp/series/*]`, and the script should execute.
