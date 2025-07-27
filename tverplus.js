@@ -16,6 +16,7 @@ const SERIES_CONTENT_CLASS = "series-main_content";
 const TVER_SERIES_URL = "https://tver.jp/series/";
 const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/mdl_favicon.png";
+const MDL_DRAMA_TYPES = ["Japanese Drama", "Japanese TV Show"];
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
 const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
@@ -71,7 +72,7 @@ function retrieveSeriesData(title) {
       for (let i = 0; i < 3; i++) {
         const drama = data.results.dramas[i];
 
-        if (drama.type === "Japanese Drama") {
+        if (MDL_DRAMA_TYPES.includes(drama.type)) {
           console.info(`${drama.title} | ${drama.year}`);
           return drama.slug;
         }
