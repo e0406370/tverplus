@@ -88,7 +88,7 @@ function retrieveSeriesData(title) {
     .then(async (data) => {
       seriesData.rating = data.data.rating;
       seriesData.link = data.data.link;
-      await GM.setValue(`${seriesID}-${title}`, JSON.stringify(seriesData));
+      await GM.setValue(`${seriesID}`, JSON.stringify(seriesData));
       return seriesData;
     })
     .catch((err) => {
@@ -150,7 +150,7 @@ function runScript() {
   waitForTitle()
     .then(async (title) => {
       initSeriesElements();
-      const cached = await GM.getValue(`${seriesID}-${title}`);
+      const cached = await GM.getValue(`${seriesID}`);
       const parsed = cached && JSON.parse(cached);
       return cached && !isTimestampExpired(parsed.timestamp) ? parsed : retrieveSeriesData(title);
     })
