@@ -16,12 +16,14 @@ const SERIES_CONTENT_CLASS = "series-main_content";
 const TVER_SERIES_URL = "https://tver.jp/series/";
 const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 const MDL_FAVICON_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/mdl_favicon.png";
+const MDL_DRAMA_TYPES = ["Japanese Drama", "Japanese TV Show"];
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
 const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
 const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
+const normaliseMDLSearchQuery = (query) => query.replace("-", "").replace("Ｎ", "N");
 
 let previousTitle;
 let previousUrl;
@@ -60,7 +62,7 @@ function retrieveSeriesData(title) {
     timestamp: Date.now(),
   };
 
-  return fetch(getMDLSearchDramasEndpoint(title))
+  return fetch(getMDLSearchDramasEndpoint(normaliseMDLSearchQuery(title)))
     .then((res) => res.json())
     .then((data) => {
       if (data.results.dramas.length === 0) {
@@ -70,7 +72,7 @@ function retrieveSeriesData(title) {
       for (let i = 0; i < 3; i++) {
         const drama = data.results.dramas[i];
 
-        if (drama.type === "Japanese Drama") {
+        if (MDL_DRAMA_TYPES.includes(drama.type)) {
           console.info(`${drama.title} | ${drama.year}`);
           return drama.slug;
         }
