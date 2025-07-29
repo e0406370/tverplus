@@ -1,12 +1,14 @@
 ### Purpose
 
-This userscript injects the corresponding [MyDramaList](https://mydramalist.com/699035-tokyo-mer) rating and link into a [TVer series](https://tver.jp/series/srwttibvhk) page, with support from the [Tampermonkey](https://www.tampermonkey.net/) browser extension. 
+This userscript injects the corresponding [Filmarks](https://filmarks.com/dramas/10640/14824) and [MyDramaList](https://mydramalist.com/699035-tokyo-mer) ratings with links to their respective pages on [TVer series](https://tver.jp/series/srwttibvhk) pages, with support from the [Tampermonkey](https://www.tampermonkey.net/) browser extension. 
 
 It aims for the best possible 1-to-1 matching accuracy despite the limitations described in [GH-8](https://github.com/e0406370/tverplus/issues/8).
 
-Using the script allows users to instantly view the rating and directly access the associated MyDramaList page, eliminating the need to navigate away from TVer and searching for it manually via another method.
+Using the script allows users to instantly view the ratings and directly access the associated Filmarks and MyDramaList pages, eliminating the need to navigate away from TVer and manually search for this information.
 
-There are plans to incorporate [Filmarks](https://filmarks.com/dramas/10640/14824) as an additional data source, but the required API endpoints will have to be created from scratch first.
+The series data is sourced from two custom APIs:
+- Filmarks via [markuapi](https://github.com/e0406370/markuapi) by `e0406370`
+- MyDramaList via [kuryana](https://github.com/tbdsux/kuryana) by `tbdsux`
 
 ![demo](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/gh_7_demo.gif)
 
