@@ -10,7 +10,7 @@ The series data is sourced from two custom APIs:
 - Filmarks via [markuapi](https://github.com/e0406370/markuapi) by `e0406370`
 - MyDramaList via [kuryana](https://github.com/tbdsux/kuryana) by `tbdsux`
 
-![demo](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/gh_7_demo.gif)
+![demo](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/gh_21_demo.gif)
 
 ### Setup
 
