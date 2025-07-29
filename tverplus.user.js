@@ -78,7 +78,7 @@ function waitForTitle() {
 }
 
 async function retrieveSeriesDataFM(title) {
-  let seriesDataFM = {
+  const seriesDataFM = {
     rating: "-",
     link: null,
     timestamp: Date.now(),
@@ -119,7 +119,7 @@ async function retrieveSeriesDataFM(title) {
 }
 
 async function retrieveSeriesDataMDL(title) {
-  let seriesDataMDL = {
+  const seriesDataMDL = {
     rating: "N/A",
     link: null,
     timestamp: Date.now(),
@@ -168,7 +168,9 @@ async function retrieveSeriesDataMDL(title) {
 
 function initSeriesElements() {
   for (let type of ["fm", "mdl"]) {
-    if (isEmptyObject(seriesElements[type])) {
+    let element = seriesElements[type];
+
+    if (isEmptyObject(element)) {
       const dataContainer = document.createElement("div");
       const linkWrapper = document.createElement("a");
       const faviconLabel = document.createElement("img");
@@ -180,7 +182,7 @@ function initSeriesElements() {
       linkWrapper.appendChild(faviconLabel);
       linkWrapper.appendChild(ratingLabel);
 
-      seriesElements[type] = {
+      element = {
         dataContainer: dataContainer,
         linkWrapper: linkWrapper,
         faviconLabel: faviconLabel,
@@ -189,45 +191,48 @@ function initSeriesElements() {
         loadingSpinner: loadingSpinner,
       };
 
-      seriesElements[type].loadingSpinner.setAttribute("src", seriesElements[type].colorMode === "light" ? SPINNER_LIGHT_MODE : SPINNER_DARK_MODE);
+      seriesElements[type] = element;
 
-      seriesElements[type].linkWrapper.style.color = seriesElements[type].colorMode === "light" ? "#000000" : "#ffffff";
-      seriesElements[type].linkWrapper.style.display = "inline-flex";
-      seriesElements[type].linkWrapper.style.alignItems = "center";
-      seriesElements[type].linkWrapper.style.gap = "4px";
+      element.loadingSpinner.setAttribute("src", element.colorMode === "light" ? SPINNER_LIGHT_MODE : SPINNER_DARK_MODE);
 
-      seriesElements[type].faviconLabel.setAttribute("src", type === "fm" ? FM_FAVICON_URL : MDL_FAVICON_URL);
-      seriesElements[type].faviconLabel.setAttribute("width", "24");
-      seriesElements[type].faviconLabel.setAttribute("height", "24");
+      element.linkWrapper.style.color = element.colorMode === "light" ? "#000000" : "#ffffff";
+      element.linkWrapper.style.display = "inline-flex";
+      element.linkWrapper.style.alignItems = "center";
+      element.linkWrapper.style.gap = "4px";
+
+      element.faviconLabel.setAttribute("src", type === "fm" ? FM_FAVICON_URL : MDL_FAVICON_URL);
+      element.faviconLabel.setAttribute("width", "24");
+      element.faviconLabel.setAttribute("height", "24");
     }
 
-    seriesElements[type].ratingLabel.textContent = "";
-    seriesElements[type].ratingLabel.appendChild(seriesElements[type].loadingSpinner);
+    element.ratingLabel.textContent = "";
+    element.ratingLabel.appendChild(element.loadingSpinner);
 
-    seriesElements[type].linkWrapper.removeAttribute("href");
-    seriesElements[type].linkWrapper.removeAttribute("target");
-    seriesElements[type].linkWrapper.removeAttribute("rel");
+    element.linkWrapper.removeAttribute("href");
+    element.linkWrapper.removeAttribute("target");
+    element.linkWrapper.removeAttribute("rel");
 
     const contentContainer = document.querySelector(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
-    contentContainer.appendChild(seriesElements[type].dataContainer);
+    contentContainer.appendChild(element.dataContainer);
   }
 }
 
-function includeSeriesData() {
-  for (let type of ["fm", "mdl"]) {
-    seriesElements[type].ratingLabel.removeChild(seriesElements[type].loadingSpinner);
+function includeSeriesData(type) {
+  const element = seriesElements[type];
+  const data = seriesData[type];
 
-    if (seriesData[type].link) {
-      seriesElements[type].linkWrapper.setAttribute("href", seriesData[type].link);
-      seriesElements[type].linkWrapper.setAttribute("target", "_blank");
-      seriesElements[type].linkWrapper.setAttribute("rel", "noopener noreferrer");
-    }
+  element.ratingLabel.removeChild(element.loadingSpinner);
 
-    seriesElements[type].ratingLabel.textContent
-      = seriesData[type].rating === (type === "fm" ? "-" : "N/A")
-      ? "N/A"
-      : Number.parseFloat(seriesData[type].rating).toFixed(1);
+  if (data.link) {
+    element.linkWrapper.setAttribute("href", data.link);
+    element.linkWrapper.setAttribute("target", "_blank");
+    element.linkWrapper.setAttribute("rel", "noopener noreferrer");
   }
+
+   element.ratingLabel.textContent
+    = data.rating === (type === "fm" ? "-" : "N/A")
+    ? "N/A"
+    : Number.parseFloat(seriesData[type].rating).toFixed(1);
 }
 
 function runScript() {
