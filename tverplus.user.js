@@ -229,7 +229,7 @@ function includeSeriesData(type) {
     element.linkWrapper.setAttribute("rel", "noopener noreferrer");
   }
 
-   element.ratingLabel.textContent
+  element.ratingLabel.textContent
     = data.rating === (type === "fm" ? "-" : "N/A")
     ? "N/A"
     : Number.parseFloat(seriesData[type].rating).toFixed(1);
@@ -240,16 +240,27 @@ function runScript() {
     .then(async (title) => {
       initSeriesElements();
 
-      const cachedFM = await GM.getValue(`${seriesID}-fm`);
-      const parsedFM = cachedFM && JSON.parse(cachedFM);
-      seriesData.fm = cachedFM && !isTimestampExpired(parsedFM.timestamp) ? parsedFM : await retrieveSeriesDataFM(title);
+      const promiseFM = (async () => {
+        const cachedFM = await GM.getValue(`${seriesID}-fm`);
+        const parsedFM = cachedFM && JSON.parse(cachedFM);
+        seriesData.fm
+          = cachedFM && !isTimestampExpired(parsedFM.timestamp)
+          ? parsedFM
+          : await retrieveSeriesDataFM(title);
 
-      const cachedMDL = await GM.getValue(`${seriesID}-mdl`);
-      const parsedMDL = cachedMDL && JSON.parse(cachedMDL);
-      seriesData.mdl = cachedMDL && !isTimestampExpired(parsedMDL.timestamp) ? parsedMDL : await retrieveSeriesDataMDL(title);
-    })
-    .then(() => {
-      includeSeriesData();
+        includeSeriesData("fm");
+      })();
+
+      const promiseMDL = (async () => {
+        const cachedMDL = await GM.getValue(`${seriesID}-mdl`);
+        const parsedMDL = cachedMDL && JSON.parse(cachedMDL);
+        seriesData.mdl
+          = cachedMDL && !isTimestampExpired(parsedMDL.timestamp)
+          ? parsedMDL
+          : await retrieveSeriesDataMDL(title);
+
+        includeSeriesData("mdl");
+      })();
     });
 }
 
