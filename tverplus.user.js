@@ -26,7 +26,7 @@ const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 const MDL_DRAMA_TYPES = ["Japanese Drama", "Japanese TV Show"];
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
-const retrieveSeriesIDFromSeriesURL = (url) => url.match("sr[a-z0-9]{8,9}")[0];
+const retrieveSeriesIDFromSeriesURL = (url) => (url.match(/sr[a-z0-9]{8,9}/) || [])[0] || null;
 const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
 const isEmptyObject = (obj) => Object.keys(obj).length === 0;
 
@@ -235,6 +235,15 @@ function includeSeriesData(type) {
     : Number.parseFloat(seriesData[type].rating).toFixed(1);
 }
 
+function resetSeriesData() {
+  seriesData.fm = {};
+  seriesData.mdl = {};
+  seriesElements.fm = {};
+  seriesElements.mdl = {};
+  seriesID = undefined;
+  previousTitle = undefined;
+}
+
 function runScript() {
   waitForTitle()
     .then(async (title) => {
@@ -267,14 +276,17 @@ function runScript() {
 function matchScript({ url }) {
   if (url.startsWith(TVER_SERIES_URL)) {
     seriesID = retrieveSeriesIDFromSeriesURL(location.href);
-    runScript();
+
+    if (seriesID) {
+      runScript();
+    }
+    else {
+      console.warn('Invalid series ID.');
+      resetSeriesData();
+    }
   }
   else {
-    seriesData.fm = {};
-    seriesData.mdl = {};
-    seriesElements.fm = {};
-    seriesElements.mdl = {};
-    previousTitle = undefined;
+    resetSeriesData();
   }
 }
 
