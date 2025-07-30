@@ -258,7 +258,7 @@ function runScript() {
           : await retrieveSeriesDataFM(title);
 
         includeSeriesData("fm");
-      })();
+      })().then(() => console.info(`[FM] Series data added for ${title}: ${JSON.stringify(seriesData.fm)}`));
 
       const promiseMDL = (async () => {
         const cachedMDL = await GM.getValue(`${seriesID}-mdl`);
@@ -269,7 +269,7 @@ function runScript() {
           : await retrieveSeriesDataMDL(title);
 
         includeSeriesData("mdl");
-      })();
+      })().then(() => console.info(`[MDL] Series data added for ${title}: ${JSON.stringify(seriesData.mdl)}`));
     });
 }
 
@@ -281,7 +281,7 @@ function matchScript({ url }) {
       runScript();
     }
     else {
-      console.warn('Invalid series ID.');
+      console.warn("Invalid series ID");
       resetSeriesData();
     }
   }
