@@ -4,7 +4,7 @@
 // @description  Adds Filmarks and MyDramaList ratings with links to their respective pages directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-07-29
+// @version      2025-07-30
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @grant        window.onurlchange
@@ -231,7 +231,7 @@ function includeSeriesData(type) {
 
   element.ratingLabel.textContent
     = data.rating === (type === "fm" ? "-" : "N/A")
-    ? "N/A"
+    ? data.link ? "N/A (✓)" : "N/A (✗)"
     : Number.parseFloat(seriesData[type].rating).toFixed(1);
 }
 
