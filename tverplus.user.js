@@ -4,7 +4,7 @@
 // @description  Adds Filmarks and MyDramaList ratings with links to their respective pages directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-07-29
+// @version      2025-07-30
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @grant        window.onurlchange
@@ -231,7 +231,7 @@ function includeSeriesData(type) {
 
   element.ratingLabel.textContent
     = data.rating === (type === "fm" ? "-" : "N/A")
-    ? "N/A"
+    ? data.link ? "N/A (✓)" : "N/A (✗)"
     : Number.parseFloat(seriesData[type].rating).toFixed(1);
 }
 
@@ -258,7 +258,7 @@ function runScript() {
           : await retrieveSeriesDataFM(title);
 
         includeSeriesData("fm");
-      })();
+      })().then(() => console.info(`[FM] Series data added for ${title}: ${JSON.stringify(seriesData.fm)}`));
 
       const promiseMDL = (async () => {
         const cachedMDL = await GM.getValue(`${seriesID}-mdl`);
@@ -269,7 +269,7 @@ function runScript() {
           : await retrieveSeriesDataMDL(title);
 
         includeSeriesData("mdl");
-      })();
+      })().then(() => console.info(`[MDL] Series data added for ${title}: ${JSON.stringify(seriesData.mdl)}`));
     });
 }
 
@@ -281,7 +281,7 @@ function matchScript({ url }) {
       runScript();
     }
     else {
-      console.warn('Invalid series ID.');
+      console.warn("Invalid series ID");
       resetSeriesData();
     }
   }
