@@ -30,7 +30,7 @@ const retrieveSeriesIDFromSeriesURL = (url) => (url.match(/sr[a-z0-9]{8,9}/) || 
 const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
 const isEmptyObject = (obj) => Object.keys(obj).length === 0;
 
-const getFMSearchDramasEndpoint = (query) => `${FM_API_BASE_URL}/search/dramas/${query}`
+const getFMSearchDramasEndpoint = (query) => `${FM_API_BASE_URL}/search/dramas?q=${query}`
 const getMDLSearchDramasEndpoint = (query) => `${MDL_API_BASE_URL}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (slug) => `${MDL_API_BASE_URL}/id/${slug}`
 const normaliseTitle = (query) => query.replace(/[-–—−―]/g, "").replace(/[~～〜⁓∼˜˷﹏﹋]/g, "") .replace(/[\/／∕⁄]/g, "").replace(/[()（）]/g, "").replace(/\s/g, "").normalize("NFKC");
