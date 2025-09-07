@@ -1,0 +1,25 @@
+name: Perform-minimum-validation-for-possible-breakpoints-in-tverplus-userscript-puppeteer
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # attempts to run every 15th minute
+
+jobs:
+  validation-puppeteer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run 'puppeteer' script to verify essential 'tver' elements are present
+        uses: tj-actions/puppeteer@v5
+        id: puppeteer
+        with:
+          files: |
+            ./.github/workflows/tverplus_puppeteer.mjs

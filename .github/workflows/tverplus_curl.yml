@@ -1,0 +1,144 @@
+name: Perform-minimum-validation-for-possible-breakpoints-in-tverplus-userscript-curl
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # attempts to run every 15th minute
+
+env:
+  TVER_SERIES_URL: "https://tver.jp/series/sr2u73jipd"
+  TVER_SERIES_TITLE: "あなたの番です"
+  TVER_SERIES_FM_LINK: "https://filmarks.com/dramas/6055/8586"
+  TVER_SERIES_MDL_SLUG: "33145-it-s-your-turn"
+  TVER_SERIES_MDL_LINK: "https://mydramalist.com/33145-it-s-your-turn"
+  TAMPERMONKEY_DOCUMENTATION_URL: "https://www.tampermonkey.net/documentation.php?locale=en"
+
+  RENDER_MARKUAPIZ: ${{ secrets.RENDER_MARKUAPIZ }}
+  VERCEL_KURYANA: ${{ secrets.VERCEL_KURYANA }}
+  ASSETS_TVERPLUS: ${{ secrets.ASSETS_TVERPLUS }}
+
+jobs:
+  validation-curl:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate 'tver' SERIES EP is alive
+        if: always()
+        run: |
+          resp_code=$(curl -sw '\n%{http_code}' "$TVER_SERIES_URL" | tail -n 1)
+          if [[ "$resp_code" -ne 200 ]]; then
+              echo "$resp_code"
+              exit 1
+          fi
+
+      - name: Validate 'markuapi' FM API - BASE EP is alive
+        if: always()
+        run: |
+          resp_code=$(curl -sw '\n%{http_code}' "$RENDER_MARKUAPIZ" | tail -n 1)
+          if [[ "$resp_code" -ne 200 ]]; then
+              echo "$resp_code"
+              exit 1
+          fi
+
+      - name: Validate 'markuapi' FM API - SEARCH DRAMAS EP is alive and expected fields are present
+        if: always()
+        run: |
+          resp=$(curl -sw '\n%{http_code}' "${RENDER_MARKUAPIZ}/search/dramas?q=$(echo ${TVER_SERIES_TITLE} | jq -Rr @uri)")
+
+          resp_code=$(echo "$resp" | tail -n 1)
+          if [[ "$resp_code" -ne 200 ]]; then
+              echo "$resp_code"
+              exit 1
+          fi
+
+          resp_body=$(echo "$resp" | head -n 1)
+          title=$(echo "$resp_body" | jq -r '.results.dramas[0].title')
+          rating=$(echo "$resp_body" | jq -r '.results.dramas[0].rating')
+          link=$(echo "$resp_body" | jq -r '.results.dramas[0].link')
+
+          if [[ "$title" != "$TVER_SERIES_TITLE" || -z "$rating" || "$link" != "$TVER_SERIES_FM_LINK" ]]; then
+              echo "${title}, ${rating}, ${link}"
+              exit 1
+          fi
+
+      - name: Validate 'kuryana' MDL API - BASE EP is alive
+        if: always()
+        run: |
+          resp_code=$(curl -sw '\n%{http_code}' "$VERCEL_KURYANA" | tail -n 1)
+          if [[ "$resp_code" -ne 200 ]]; then
+              echo "$resp_code"
+              exit 1
+          fi
+
+      - name: Validate 'kuryana' MDL API - SEARCH EP is alive and expected fields are present
+        if: always()
+        run: |
+          resp=$(curl -sw '\n%{http_code}' "${VERCEL_KURYANA}/search/q/$(echo ${TVER_SERIES_TITLE} | jq -Rr @uri)")
+
+          resp_code=$(echo "$resp" | tail -n 1)
+          if [[ "$resp_code" -ne 200 ]]; then
+              echo "$resp_code"
+              exit 1
+          fi
+
+          resp_body=$(echo "$resp" | head -n 1)
+          slug=$(echo "$resp_body" | jq -r '.results.dramas[0].slug')
+          type=$(echo "$resp_body" | jq -r '.results.dramas[0].type')
+          title=$(echo "$resp_body" | jq -r '.results.dramas[0].title')
+          year=$(echo "$resp_body" | jq -r '.results.dramas[0].year')
+
+          if [[ "$slug" != "$TVER_SERIES_MDL_SLUG" || "$type" != 'Japanese Drama' || -z "$title" || "$year" -ne 2019 ]]; then
+              echo "${slug}, ${type}, ${title}, ${year}"
+              exit 1
+          fi
+
+      - name: Validate 'kuryana' MDL API - INFO EP is alive and expected fields are present
+        if: always()
+        run: |
+          resp=$(curl -sw '\n%{http_code}' "${VERCEL_KURYANA}/id/${TVER_SERIES_MDL_SLUG}")
+
+          resp_code=$(echo "$resp" | tail -n 1)
+          if [[ "$resp_code" -ne 200 ]]; then
+              echo "$resp_code"
+              exit 1
+          fi
+
+          resp_body=$(echo "$resp" | head -n 1)
+          rating=$(echo "$resp_body" | jq -r '.data.rating')
+          link=$(echo "$resp_body" | jq -r '.data.link')
+
+          if [[ -z "$rating" || "$link" != "$TVER_SERIES_MDL_LINK" ]]; then
+              echo "${rating}, ${link}"
+              exit 1
+          fi
+
+      - name: Validate 'tverplus' ASSETS are all alive
+        if: always()
+        run: |
+          spinner_light_rc=$(curl -sw '\n%{http_code}' "${ASSETS_TVERPLUS}spinner_light_mode.svg" | tail -n 1)
+          spinner_dark_rc=$(curl -sw '\n%{http_code}' "${ASSETS_TVERPLUS}spinner_dark_mode.svg" | tail -n 1)
+          favicon_fm_rc=$(curl -sw '\n%{http_code}' "${ASSETS_TVERPLUS}favicon_fm.png" | tail -n 1)
+          favicon_mdl_rc=$(curl -sw '\n%{http_code}' "${ASSETS_TVERPLUS}favicon_mdl.png" | tail -n 1)
+
+          if [[ "$spinner_light_rc" -ne 200 || "$spinner_dark_rc" -ne 200 || "$favicon_fm_rc" -ne 200 || "$favicon_mdl_rc" -ne 200 ]]; then
+              echo "$spinner_light_rc, $spinner_dark_rc, $favicon_fm_rc, $favicon_mdl_rc"
+              exit 1
+          fi
+
+      - name: Validate 'tampermonkey' DOCUMENTATION contains info on the TM-exclusive functions utilised in the userscript
+        if: always()
+        run: |
+          resp_body=$(curl -s "$TAMPERMONKEY_DOCUMENTATION_URL")
+            
+          grep -q "window.onurlchange" <<< "$resp_body"
+          urlchange=$?
+
+          grep -q "GM.getValue" <<< "$resp_body"
+          gmgetvalue=$?
+
+          grep -q "GM.setValue" <<< "$resp_body"
+          gmsetvalue=$?
+            
+          if [[ "$urlchange" -ne 0 || "$gmgetvalue" -ne 0 || "$gmsetvalue" -ne 0 ]]; then
+              echo "Check the documentation!"
+              exit 1
+          fi
