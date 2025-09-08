@@ -1,8 +1,7 @@
 name: Perform-minimum-validation-for-possible-breakpoints-in-tverplus-userscript-curl
 
 on:
-  schedule:
-    - cron: "*/15 * * * *" # attempts to run every 15th minute
+  workflow_call:
 
 env:
   TVER_SERIES_URL: "https://tver.jp/series/sr2u73jipd"
