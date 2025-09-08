@@ -1,0 +1,19 @@
+name: Perform-minimum-validation-1-curl-2-puppeteer
+
+on:
+  pull_request:
+    branches: ["main"]
+
+  schedule:
+    - cron: "0 10 * * *"
+
+jobs:
+  _run-curl-script:
+    name: Perform-minimum-validation-for-possible-breakpoints-in-tverplus-userscript-curl
+    uses: ./.github/workflows/tverplus_curl.yml
+    secrets: inherit
+
+  _run-puppeteer-script:
+    name: Perform-minimum-validation-for-possible-breakpoints-in-tverplus-userscript-puppeteer
+    uses: ./.github/workflows/tverplus_puppeteer.yml
+    needs: _run-curl-script
