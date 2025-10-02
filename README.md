@@ -1,8 +1,16 @@
+## tverplus
+
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Tampermonkey](https://img.shields.io/badge/tampermonkey-5.3.3-blue?logo=tampermonkey&label=Tampermonkey)](https://www.tampermonkey.net/index.php)
+[![Perform-minimum-validation-1-curl-2-puppeteer](https://github.com/e0406370/tverplus/actions/workflows/tverplus_base.yml/badge.svg)](https://github.com/e0406370/tverplus/actions/workflows/tverplus_base.yml)
+
+---
+
 ### Purpose
 
 This userscript injects the corresponding [Filmarks](https://filmarks.com/dramas/10640/14824) and [MyDramaList](https://mydramalist.com/699035-tokyo-mer) ratings with links to their respective pages on [TVer series](https://tver.jp/series/srwttibvhk) pages, with support from the [Tampermonkey](https://www.tampermonkey.net/) browser extension. 
 
-It aims for the best possible 1-to-1 matching accuracy despite the limitations described in [GH-8](https://github.com/e0406370/tverplus/issues/8).
+It aims for the best possible 1-to-1 matching accuracy despite the limitations described in the issue [GH-8](https://github.com/e0406370/tverplus/issues/8).
 
 Using the script allows users to instantly view the ratings and directly access the associated Filmarks and MyDramaList pages, eliminating the need to navigate away from TVer and manually search for this information.
 
@@ -12,9 +20,11 @@ The series data is sourced from two custom APIs:
 
 ![demo](https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/gh_21_demo.gif)
 
+---
+
 ### Setup
 
-1. Install the Tampermonkey extension for your browser [here](https://www.tampermonkey.net/).
+1. Install the Tampermonkey extension for your browser [here](https://www.tampermonkey.net/). Note that this guide uses Chrome for the setup.
 
 2. After installing, visit the Extensions page and then click `Details` for the Tampermonkey extension, followed by enabling the `Allow user scripts` option as well as `Developer mode` located on the top right corner.
 
@@ -26,6 +36,6 @@ The series data is sourced from two custom APIs:
 
 6. The `tverplus` script should now appear on the dashboard. For additional information on installing scripts in Tampermonkey, refer to this [guide](https://www.tampermonkey.net/faq.php?locale=en#Q102).
 
-7. Access a [valid](https://tver.jp/series/srwttibvhk) TVer series page `[https://tver.jp/series/*]`, and the script should execute.
+7. Access a [valid](https://tver.jp/series/srwttibvhk) TVer series page `https://tver.jp/series/*`, and the script should execute automatically. If the script fails to load, try closing your browser and then reopening the page.
 
 https://github.com/user-attachments/assets/d9673911-36bb-4d56-9c0a-88a6f9e01d50
