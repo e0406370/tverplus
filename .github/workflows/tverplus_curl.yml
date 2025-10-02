@@ -11,7 +11,7 @@ env:
   TVER_SERIES_MDL_LINK: "https://mydramalist.com/33145-it-s-your-turn"
   TAMPERMONKEY_DOCUMENTATION_URL: "https://www.tampermonkey.net/documentation.php?locale=en"
 
-  RENDER_MARKUAPIZ: ${{ secrets.RENDER_MARKUAPIZ }}
+  LEAPCELL_MARKUAPI: ${{ secrets.LEAPCELL_MARKUAPI }}
   VERCEL_KURYANA: ${{ secrets.VERCEL_KURYANA }}
   ASSETS_TVERPLUS: ${{ secrets.ASSETS_TVERPLUS }}
 
@@ -32,7 +32,7 @@ jobs:
       - name: Validate 'markuapi' FM API - BASE EP is alive
         if: always()
         run: |
-          resp_code=$(curl -sw '\n%{http_code}' "$RENDER_MARKUAPIZ" | tail -n 1)
+          resp_code=$(curl -sw '\n%{http_code}' "$LEAPCELL_MARKUAPI" | tail -n 1)
           if [[ "$resp_code" -ne 200 ]]; then
               echo "$resp_code"
               exit 1
@@ -41,7 +41,7 @@ jobs:
       - name: Validate 'markuapi' FM API - SEARCH DRAMAS EP is alive and expected fields are present
         if: always()
         run: |
-          resp=$(curl -sw '\n%{http_code}' "${RENDER_MARKUAPIZ}/search/dramas?q=$(echo ${TVER_SERIES_TITLE} | jq -Rr @uri)")
+          resp=$(curl -sw '\n%{http_code}' "${LEAPCELL_MARKUAPI}/search/dramas?q=$(echo ${TVER_SERIES_TITLE} | jq -Rr @uri)")
 
           resp_code=$(echo "$resp" | tail -n 1)
           if [[ "$resp_code" -ne 200 ]]; then
