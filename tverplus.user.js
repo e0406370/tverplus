@@ -4,7 +4,7 @@
 // @description  Adds Filmarks and MyDramaList ratings with links to their respective pages directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-09-02
+// @version      2025-10-02
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @grant        window.onurlchange
@@ -21,7 +21,7 @@ const FM_FAVICON_URL = `${ASSETS_BASE_URL}favicon_fm.png`;
 const MDL_FAVICON_URL = `${ASSETS_BASE_URL}favicon_mdl.png`;
 
 const TVER_SERIES_URL = "https://tver.jp/series/";
-const FM_API_BASE_URL = "https://markuapiz.onrender.com";
+const FM_API_BASE_URL = "https://markuapi.apn.leapcell.app";
 const MDL_API_BASE_URL = "https://kuryana.tbdh.app";
 const MDL_DRAMA_TYPES = ["Japanese Drama", "Japanese TV Show"];
 

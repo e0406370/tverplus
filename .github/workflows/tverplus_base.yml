@@ -1,6 +1,9 @@
 name: Perform-minimum-validation-1-curl-2-puppeteer
 
 on:
+  push:
+    branches: ["main"]
+
   pull_request:
     branches: ["main"]
 
