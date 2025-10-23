@@ -1,10 +1,8 @@
 ## tverplus
 
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Tampermonkey](https://img.shields.io/badge/tampermonkey-5.3.3-blue?logo=tampermonkey&label=Tampermonkey)](https://www.tampermonkey.net/index.php)
+[![Tampermonkey](https://img.shields.io/badge/tampermonkey-5.4.0-blue?logo=tampermonkey&label=Tampermonkey)](https://www.tampermonkey.net/index.php)
 [![Perform-minimum-validation-1-curl-2-puppeteer](https://github.com/e0406370/tverplus/actions/workflows/tverplus_base.yml/badge.svg)](https://github.com/e0406370/tverplus/actions/workflows/tverplus_base.yml)
-
----
 
 ### Purpose
 
