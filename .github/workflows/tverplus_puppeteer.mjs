@@ -7,9 +7,9 @@ const SERIES_FM_RATING = 4.0;
 const SERIES_MDL_LINK = "https://mydramalist.com/33145-it-s-your-turn";
 const SERIES_MDL_RATING = 8.0;
 
-const SERIES_CONTAINER_CLASS = "series-page-main_container";
-const SERIES_CONTENT_CLASS = "series-main_content";
-const SERIES_TITLE_CLASS = "series-main_title";
+const SERIES_CONTAINER_CLASS = "Series_container";
+const SERIES_CONTENT_CLASS = "Series_info";
+const SERIES_TITLE_CLASS = "Series_title";
 
 const USERSCRIPT_GITHUB_REPO = process.env.GITHUB_REPO || "e0406370/tverplus";
 const USERSCRIPT_GITHUB_REF = process.env.GITHUB_REF || "main";
