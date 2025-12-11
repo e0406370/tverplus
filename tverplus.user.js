@@ -4,15 +4,15 @@
 // @description  Adds Filmarks and MyDramaList ratings with links to their respective pages directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-10-23
+// @version      2025-12-11
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @grant        window.onurlchange
 // @noframes
 // ==/UserScript==
 
-const SERIES_TITLE_CLASS = "series-main_title";
-const SERIES_CONTENT_CLASS = "series-main_content";
+const SERIES_CONTENT_CLASS = "Series_info";
+const SERIES_TITLE_CLASS = "Series_title";
 
 const ASSETS_BASE_URL = "https://raw.githubusercontent.com/e0406370/tverplus/refs/heads/assets/";
 const SPINNER_LIGHT_MODE = `${ASSETS_BASE_URL}spinner_light_mode.svg`;
@@ -47,14 +47,14 @@ let seriesID;
 let previousTitle;
 
 function waitForTitle() {
-  const titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
   const contentSelector = retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS);
+  const titleSelector = retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS);
 
   return new Promise((res) => {
     const isTitleReady = () => {
-      const titleElement = document.querySelector(titleSelector);
       const contentElement = document.querySelector(contentSelector);
-      return titleElement && contentElement && titleElement.textContent !== previousTitle;
+      const titleElement = document.querySelector(titleSelector);
+      return contentElement && titleElement && titleElement.textContent !== previousTitle;
     };
 
     if (isTitleReady()) {
@@ -240,6 +240,7 @@ function initSeriesElements() {
       element.linkWrapper.style.display = "inline-flex";
       element.linkWrapper.style.alignItems = "center";
       element.linkWrapper.style.gap = "4px";
+      element.linkWrapper.style.marginTop = "5%";
 
       element.faviconLabel.setAttribute("src", type === "fm" ? FM_FAVICON_URL : MDL_FAVICON_URL);
       element.faviconLabel.setAttribute("width", "24");
