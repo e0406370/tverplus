@@ -4,7 +4,7 @@
 // @description  Adds Filmarks and MyDramaList ratings with links to their respective pages directly on TVer series pages. 1-1 matching is not guaranteed.
 // @author       e0406370
 // @match        https://tver.jp/*
-// @version      2025-12-11
+// @version      2026-02-18
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @grant        window.onurlchange
@@ -21,19 +21,21 @@ const FM_FAVICON_URL = `${ASSETS_BASE_URL}favicon_fm.png`;
 const MDL_FAVICON_URL = `${ASSETS_BASE_URL}favicon_mdl.png`;
 
 const TVER_SERIES_URL = "https://tver.jp/series/";
+const TVER_EXCLUDED_COUNTRIES = ["中国", "韓国", "韓流"];
 const FM_API_BASE_URLS = ["https://markuapi.vercel.app", "https://markuapi.apn.leapcell.app"];
+const FM_COUNTRY_TYPE = "日本";
 const MDL_API_BASE_URLS = ["https://kuryana-kappa.vercel.app", "https://kuryana.tbdh.app"];
 const MDL_DRAMA_TYPES = ["Japanese Drama", "Japanese TV Show"];
 
 const retrieveSelectorClassStartsWith = (className) => `[class^=${className}]`;
 const retrieveSeriesIDFromSeriesURL = (url) => (url.match(/sr[a-z0-9]{8,9}/) || [])[0] || null;
-const isTimestampExpired = (timestamp) => timestamp < Date.now() - 7 * 24 * 60 * 60 * 10 ** 3;
+const isTimestampExpired = (timestamp) => timestamp < Date.now() - 24 * 60 * 60 * 10 ** 3;
 const isEmptyObject = (obj) => Object.keys(obj).length === 0;
 
 const getFMSearchDramasEndpoint = (url, query) => `${url}/search/dramas?q=${query}`;
 const getMDLSearchDramasEndpoint = (url, query) => `${url}/search/q/${query}`;
 const getMDLGetDramaInfoEndpoint = (url, slug) => `${url}/id/${slug}`;
-const normaliseTitle = (query) => query.replace(/[-–—−―]/g, "").replace(/[~～〜⁓∼˜˷﹏﹋]/g, "") .replace(/[\/／∕⁄]/g, "").replace(/[()（）]/g, "").replace(/\s/g, "").normalize("NFKC");
+const normaliseTitle = (query) => query.normalize("NFKC").replace(/[-‐–—−―]/g, " ").replace(/[~～〜⁓∼˜˷﹏﹋]/g, " ").replace(/[\/／∕⁄]/g, " ").replace(/[()（）]/g, " ").replace(/\s+/g, "").trim();
 
 let seriesData = {
   fm: {},
@@ -59,7 +61,8 @@ function waitForTitle() {
 
     if (isTitleReady()) {
       previousTitle = document.querySelector(titleSelector).textContent;
-      return res(previousTitle);
+      res(previousTitle);
+      return;
     }
 
     const observer = new MutationObserver(() => {
@@ -89,6 +92,11 @@ async function retrieveSeriesDataFM(title) {
 
   while (!toBreak && urlPtr < FM_API_BASE_URLS.length) {
     try {
+      if (TVER_EXCLUDED_COUNTRIES.some(c => title.includes(c))) {
+        toBreak = true;
+        throw new Error(`[FM] Title contains excluded country, skipping ${title}`);
+      }
+
       const url = getFMSearchDramasEndpoint(FM_API_BASE_URLS[urlPtr], title);
       const res = await Promise.race([
         fetch(url),
@@ -107,12 +115,12 @@ async function retrieveSeriesDataFM(title) {
       }
 
       for (const [idx, drama] of data.results.dramas.entries()) {
-        if (idx === 3) break;
+        if (idx === 5) break;
 
         const titleSearch = normaliseTitle(title);
         const titleFM = normaliseTitle(drama.title);
 
-        if (titleSearch.includes(titleFM) || titleFM.includes(titleSearch)) {
+        if (drama.country_of_origin.includes(FM_COUNTRY_TYPE) && (titleSearch.includes(titleFM) || titleFM.includes(titleSearch))) {
           console.info(`[FM] ${drama.title} | ${drama.rating}`);
 
           seriesDataFM.rating = drama.rating;
@@ -146,6 +154,11 @@ async function retrieveSeriesDataMDL(title) {
 
   while (!toBreak && urlPtr < MDL_API_BASE_URLS.length) {
     try {
+      if (TVER_EXCLUDED_COUNTRIES.some(c => title.includes(c))) {
+        toBreak = true;
+        throw new Error(`[MDL] Title contains excluded country, skipping ${title}`);
+      }
+
       const searchUrl = getMDLSearchDramasEndpoint(MDL_API_BASE_URLS[urlPtr], normaliseTitle(title));
       const searchRes = await Promise.race([
         fetch(searchUrl),
@@ -166,7 +179,7 @@ async function retrieveSeriesDataMDL(title) {
       let slug = null;
 
       for (const [idx, drama] of searchData.results.dramas.entries()) {
-        if (idx === 3) break;
+        if (idx === 5) break;
 
         if (MDL_DRAMA_TYPES.includes(drama.type)) {
           console.info(`[MDL] ${drama.title} | ${drama.year}`);
@@ -282,8 +295,8 @@ function resetSeriesData() {
   seriesData.mdl = {};
   seriesElements.fm = {};
   seriesElements.mdl = {};
-  seriesID = undefined;
-  previousTitle = undefined;
+  seriesID = null;
+  previousTitle = null;
 }
 
 function runScript() {
@@ -323,7 +336,7 @@ function matchScript({ url }) {
       runScript();
     }
     else {
-      console.warn("Invalid series ID");
+      console.warn("[ERROR] Invalid series ID");
       resetSeriesData();
     }
   }
