@@ -1,15 +1,15 @@
 import puppeteer from "puppeteer";
 
+const SERIES_CONTAINER_CLASS = "Series_container";
+const SERIES_CONTENT_CLASS = "Series_info";
+const SERIES_TITLE_CLASS = "Series_title";
+
 const SERIES_URL = "https://tver.jp/series/sr2u73jipd";
 const SERIES_TITLE = "あなたの番です";
 const SERIES_FM_LINK = "https://filmarks.com/dramas/6055/8586";
 const SERIES_FM_RATING = 4.0;
 const SERIES_MDL_LINK = "https://mydramalist.com/33145-it-s-your-turn";
 const SERIES_MDL_RATING = 8.0;
-
-const SERIES_CONTAINER_CLASS = "Series_container";
-const SERIES_CONTENT_CLASS = "Series_info";
-const SERIES_TITLE_CLASS = "Series_title";
 
 const USERSCRIPT_GITHUB_REPO = process.env.GITHUB_REPO || "e0406370/tverplus";
 const USERSCRIPT_GITHUB_REF = process.env.GITHUB_REF || "main";
@@ -21,6 +21,7 @@ const logMessage = (message) => console.log(message);
 
 (async () => {
   const browser = await puppeteer.launch({ headless: isBrowserHeadless });
+
   const page = await browser.newPage();
   page.setDefaultTimeout(15_000);
   logMessage(`Browser is launched with ${isBrowserHeadless ? "headless" : "headful"} mode`);
@@ -29,19 +30,22 @@ const logMessage = (message) => console.log(message);
   logMessage(`'${SERIES_URL}' is loaded`);
 
   const containerElement = await page.waitForSelector(retrieveSelectorClassStartsWith(SERIES_CONTAINER_CLASS));
-  logMessage(`Element with selector starting with '${SERIES_CONTAINER_CLASS}' is loaded`);
+  if (!containerElement) {
+    throw new Error("Something is wrong with the container element")
+  }
+  logMessage(`Element with selector starting with '${SERIES_CONTAINER_CLASS}' is visible`);
 
   const contentElement = await containerElement.$(retrieveSelectorClassStartsWith(SERIES_CONTENT_CLASS));
-  logMessage(`Element with selector starting with '${SERIES_CONTENT_CLASS}' is visible`);
   if (!contentElement) {
     throw new Error("Something is wrong with the content element");
   }
+  logMessage(`Element with selector starting with '${SERIES_CONTENT_CLASS}' is visible`);
 
   const titleElement = await containerElement.$(retrieveSelectorClassStartsWith(SERIES_TITLE_CLASS));
-  logMessage(`Element with selector starting with '${SERIES_TITLE_CLASS}' is visible`);
   if (!titleElement) {
     throw new Error("Something is wrong with the title element");
   }
+  logMessage(`Element with selector starting with '${SERIES_TITLE_CLASS}' is visible`);
 
   const titleText = await titleElement.evaluate(el => el.textContent);
   if (titleText != SERIES_TITLE) {

@@ -128,13 +128,13 @@ jobs:
         run: |
           resp_body=$(curl -s "$TAMPERMONKEY_DOCUMENTATION_URL")
             
-          grep -q "window.onurlchange" <<< "$resp_body"
+          grep -qF "window.onurlchange" <<< "$resp_body"
           urlchange=$?
 
-          grep -q "GM.getValue" <<< "$resp_body"
+          grep -qF "GM.getValue" <<< "$resp_body"
           gmgetvalue=$?
 
-          grep -q "GM.setValue" <<< "$resp_body"
+          grep -qF "GM.setValue" <<< "$resp_body"
           gmsetvalue=$?
             
           if [[ "$urlchange" -ne 0 || "$gmgetvalue" -ne 0 || "$gmsetvalue" -ne 0 ]]; then
